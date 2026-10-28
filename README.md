@@ -91,16 +91,33 @@ workspace or container.
 
 ### 4. History
 
+Zen can import history from Chromium browsers, but Arc isn't on its list. So this step uses a
+*shim*, a small temporary adapter: a folder at `~/Library/Application Support/Microsoft Edge Beta`,
+which Zen's importer recognises, holding clean copies of each migrated Arc profile's history from
+the snapshot. The script refuses to run if a real Edge Beta folder already exists.
+
+**1. Raise Zen's import limits first.** By default Zen only imports the newest **2,000 URLs per
+profile** from the **last 180 days**. In Zen, open `about:config` and set:
+
+| Pref | Default | Set to |
+|---|---|---|
+| `browser.migrate.chrome.history.limit` | `2000` | `0` (no limit) |
+| `browser.migrate.history.maxAgeInDays` | `180` | at least the age of your oldest Arc history (the script prints it) |
+
+**2. Create the shim and import:**
 ```bash
-python3 -I scripts/04_history_shim.py
+python3 -I scripts/04_history_shim.py           # add --all to include profiles that had no space
 ```
-This creates `~/Library/Application Support/Microsoft Edge Beta`, a folder Zen's built-in importer
-recognises, containing clean copies of each Arc profile's history from the snapshot. The script
-refuses to run if that folder already exists. Then in Zen: Settings → General → Import Browser Data →
-**Microsoft Edge Beta** → pick an "Arc – …" profile → History. Repeat for each profile, then:
+In Zen: Settings → General → Import Browser Data → **Microsoft Edge Beta** → pick an "Arc – …"
+profile → History → Import. Repeat for each profile.
+
+**3. Remove the shim** (and optionally reset the two prefs):
 ```bash
 python3 -I scripts/04_history_shim.py --remove
 ```
+
+All profiles' history goes into one Zen history, because Zen keeps history per profile, not per
+workspace. The importer brings each URL's title and most recent visit, not every past visit.
 
 ### 5. Passwords (manual)
 
