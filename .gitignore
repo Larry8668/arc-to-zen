@@ -1,0 +1,8 @@
+snapshot/
+out/
+backups/
+.venv/
+__pycache__/
+*.pyc
+*.csv
+.DS_Store
